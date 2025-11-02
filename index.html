@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Topbar / Header -->
+  <!-- HEADER -->
   <header class="topbar">
     <h1>PDF-Collab</h1>
     <div class="top-actions">
@@ -16,30 +16,29 @@
     </div>
   </header>
 
-  <!-- Main Container -->
+  <!-- MAIN CONTAINER -->
   <main class="container">
-    <!-- Sidebar / Ordner + Upload -->
+    <!-- SIDEBAR -->
     <aside class="sidebar">
       <h2>Ordner</h2>
       <ul id="folders">
-        <li data-folder="current" class="active">Aktueller Workflow</li>
-        <li data-folder="past">Vergangene Workflows</li>
-        <li data-folder="finished">Fertige Abgaben</li>
-        <li data-folder="trash">Papierkorb</li>
+        <li data-folder="current" class="folder active">Aktueller Workflow</li>
+        <li data-folder="past" class="folder">Vergangene Workflows</li>
+        <li data-folder="finished" class="folder">Fertige Abgaben</li>
+        <li data-folder="trash" class="folder">Papierkorb</li>
       </ul>
 
       <div class="upload-box" id="uploadBox">
-        <p>Zieh deine PDF hierher oder <label for="fileInput" class="linklike">Datei wählen</label></p>
-        <input id="fileInput" type="file" accept="application/pdf" hidden>
+        <p>Zieh deine PDFs hierher oder <label for="fileInput" class="linklike">Datei wählen</label></p>
+        <input id="fileInput" type="file" accept="application/pdf" hidden multiple>
         <small>Max Größe/Upload abhängig vom Supabase Plan</small>
       </div>
     </aside>
 
-    <!-- Main Area / PDF Liste + Viewer -->
+    <!-- MAIN AREA -->
     <section class="main-area">
-      <!-- Toolbar: Suche + Sortierung -->
       <div class="toolbar">
-        <input id="search" placeholder="Suche PDFs..." />
+        <input id="search" type="text" placeholder="Suche PDFs..." />
         <select id="sortBy">
           <option value="date-desc">Neueste zuerst</option>
           <option value="date-asc">Älteste zuerst</option>
@@ -47,8 +46,9 @@
         </select>
       </div>
 
-      <!-- PDF Karten -->
-      <div id="pdfList" class="pdf-list"></div>
+      <div id="pdfList" class="pdf-list">
+        <!-- PDF-Karten werden hier dynamisch über JS erstellt -->
+      </div>
 
       <!-- PDF Viewer -->
       <div id="viewer" class="viewer" style="display:none">
@@ -63,9 +63,34 @@
     </section>
   </main>
 
-  <!-- Supabase JS + App -->
+  <!-- SUPABASE + APP -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
   <script src="config.js"></script>
   <script src="app.js"></script>
+
+  <script>
+    // Sicherstellen, dass Ordner klickbar sind
+    const folderEls = document.querySelectorAll('#folders .folder');
+    folderEls.forEach(folder => {
+      folder.addEventListener('click', () => {
+        folderEls.forEach(f => f.classList.remove('active'));
+        folder.classList.add('active');
+      });
+    });
+
+    // Drag & Drop Visual Feedback
+    const uploadBox = document.getElementById('uploadBox');
+    uploadBox.addEventListener('dragover', e => { e.preventDefault(); uploadBox.classList.add('drag'); });
+    uploadBox.addEventListener('dragleave', () => { uploadBox.classList.remove('drag'); });
+    uploadBox.addEventListener('drop', e => {
+      e.preventDefault();
+      uploadBox.classList.remove('drag');
+      const files = e.dataTransfer.files;
+      document.getElementById('fileInput').files = files; // übergibt Dateien an fileInput
+      const event = new Event('change');
+      document.getElementById('fileInput').dispatchEvent(event);
+    });
+  </script>
 </body>
 </html>
+
